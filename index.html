@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard MCU - Filmes e Séries</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 30px 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #b0b0b0;
+      font-size: 1.1rem;
+    }
+
+    .progress-section {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      backdrop-filter: blur(10px);
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .progress-text {
+      font-size: 1.1rem;
+      color: #e0e0e0;
+    }
+
+    .progress-percentage {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #4ecdc4;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4ecdc4 0%, #44a08d 100%);
+      border-radius: 6px;
+      transition: width 0.3s ease;
+    }
+
+    .filters-section {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      backdrop-filter: blur(10px);
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #b0b0b0;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #e0e0e0;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #4ecdc4;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    select option {
+      background: #1a1a2e;
+      color: #e0e0e0;
+    }
+
+    .view-mode-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .view-mode-btn {
+      flex: 1;
+      padding: 12px 20px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #e0e0e0;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .view-mode-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .view-mode-btn.active {
+      background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+      border-color: #4ecdc4;
+      color: #fff;
+    }
+
+    .phase-group {
+      margin-bottom: 35px;
+    }
+
+    .phase-title {
+      font-size: 1.8rem;
+      color: #ff6b6b;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid rgba(255, 107, 107, 0.3);
+    }
+
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .item-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      position: relative;
+    }
+
+    .item-card:hover {
+      transform: translateY(-5px);
+      border-color: #4ecdc4;
+      box-shadow: 0 10px 30px rgba(78, 205, 196, 0.2);
+    }
+
+    .item-card.watched {
+      opacity: 0.6;
+      background: rgba(78, 205, 196, 0.1);
+    }
+
+    .item-card.watched::after {
+      content: '✓';
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 1.5rem;
+      color: #4ecdc4;
+      font-weight: bold;
+    }
+
+    .item-position {
+      display: inline-block;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .item-title {
+      font-size: 1.3rem;
+      color: #fff;
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .item-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .item-badge {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .badge-tipo {
+      background: rgba(78, 205, 196, 0.2);
+      color: #4ecdc4;
+      border: 1px solid rgba(78, 205, 196, 0.3);
+    }
+
+    .badge-fase {
+      background: rgba(255, 107, 107, 0.2);
+      color: #ff6b6b;
+      border: 1px solid rgba(255, 107, 107, 0.3);
+    }
+
+    .item-periodo {
+      color: #b0b0b0;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+
+    .item-observacoes {
+      color: #888;
+      font-size: 0.85rem;
+      font-style: italic;
+      margin-bottom: 15px;
+      min-height: 20px;
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      transition: all 0.3s ease;
+    }
+
+    .checkbox-container:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      accent-color: #4ecdc4;
+    }
+
+    .checkbox-label {
+      font-size: 1rem;
+      color: #e0e0e0;
+      font-weight: 500;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 60px 20px;
+      color: #888;
+      font-size: 1.2rem;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .items-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-row {
+        flex-direction: column;
+      }
+
+      .view-mode-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // Dados do MCU
+    const mcuItems = [
+      { id: "capitao-america-1", titulo: "Capitão América: O Primeiro Vingador", tipo: "Filme", fase: "Fase 1", ordemCronologica: 1, periodo: "1940s", observacoes: "" },
+      { id: "fantastic-four-first-steps", titulo: "The Fantastic Four: First Steps", tipo: "Série / Minissérie", fase: "", ordemCronologica: 2, periodo: "Fim dos anos 1960", observacoes: "Minissérie de 2025 situada no passado" },
+      { id: "capita-marvel", titulo: "Capitã Marvel", tipo: "Filme", fase: "Fase 3", ordemCronologica: 3, periodo: "1995", observacoes: "" },
+      { id: "homem-de-ferro-1", titulo: "Homem de Ferro", tipo: "Filme", fase: "Fase 1", ordemCronologica: 4, periodo: "2008", observacoes: "" },
+      { id: "homem-de-ferro-2", titulo: "Homem de Ferro 2", tipo: "Filme", fase: "Fase 1", ordemCronologica: 5, periodo: "2010", observacoes: "" },
+      { id: "incrivel-hulk", titulo: "O Incrível Hulk", tipo: "Filme", fase: "Fase 1", ordemCronologica: 6, periodo: "2010", observacoes: "" },
+      { id: "thor-1", titulo: "Thor", tipo: "Filme", fase: "Fase 1", ordemCronologica: 7, periodo: "2010", observacoes: "" },
+      { id: "vingadores-1", titulo: "Os Vingadores", tipo: "Filme", fase: "Fase 1", ordemCronologica: 8, periodo: "2012", observacoes: "" },
+      { id: "homem-de-ferro-3", titulo: "Homem de Ferro 3", tipo: "Filme", fase: "Fase 2", ordemCronologica: 9, periodo: "2013", observacoes: "" },
+      { id: "thor-mundo-sombrio", titulo: "Thor: O Mundo Sombrio", tipo: "Filme", fase: "Fase 2", ordemCronologica: 10, periodo: "2013", observacoes: "" },
+      { id: "capitao-america-2", titulo: "Capitão América: O Soldado Invernal", tipo: "Filme", fase: "Fase 2", ordemCronologica: 11, periodo: "2014", observacoes: "" },
+      { id: "guardioes-1", titulo: "Guardiões da Galáxia", tipo: "Filme", fase: "Fase 2", ordemCronologica: 12, periodo: "2014", observacoes: "" },
+      { id: "guardioes-2", titulo: "Guardiões da Galáxia Vol. 2", tipo: "Filme", fase: "Fase 2", ordemCronologica: 13, periodo: "2014", observacoes: "" },
+      { id: "vingadores-era-de-ultron", titulo: "Vingadores: Era de Ultron", tipo: "Filme", fase: "Fase 2", ordemCronologica: 14, periodo: "2015", observacoes: "" },
+      { id: "homem-formiga-1", titulo: "Homem-Formiga", tipo: "Filme", fase: "Fase 2", ordemCronologica: 15, periodo: "2015", observacoes: "" },
+      { id: "guerra-civil", titulo: "Capitão América: Guerra Civil", tipo: "Filme", fase: "Fase 3", ordemCronologica: 16, periodo: "2016", observacoes: "" },
+      { id: "doutor-estranho-1", titulo: "Doutor Estranho", tipo: "Filme", fase: "Fase 3", ordemCronologica: 17, periodo: "2016-2017", observacoes: "" },
+      { id: "pantera-negra-1", titulo: "Pantera Negra", tipo: "Filme", fase: "Fase 3", ordemCronologica: 18, periodo: "2017", observacoes: "" },
+      { id: "thor-ragnarok", titulo: "Thor: Ragnarok", tipo: "Filme", fase: "Fase 3", ordemCronologica: 19, periodo: "2017", observacoes: "" },
+      { id: "guerra-infinita", titulo: "Vingadores: Guerra Infinita", tipo: "Filme", fase: "Fase 3", ordemCronologica: 20, periodo: "2017-2018", observacoes: "" },
+      { id: "ultimato", titulo: "Vingadores: Ultimato", tipo: "Filme", fase: "Fase 3", ordemCronologica: 21, periodo: "2018-2023", observacoes: "" },
+      { id: "longe-de-casa", titulo: "Homem-Aranha: Longe de Casa", tipo: "Filme", fase: "Fase 3", ordemCronologica: 22, periodo: "2023", observacoes: "" },
+      { id: "wandavision", titulo: "WandaVision", tipo: "Série", fase: "Fase 4", ordemCronologica: 23, periodo: "2023", observacoes: "" },
+      { id: "falcao-e-soldado-invernal", titulo: "Falcão e o Soldado Invernal", tipo: "Série", fase: "Fase 4", ordemCronologica: 24, periodo: "2023", observacoes: "" },
+      { id: "loki-1-2", titulo: "Loki - Temporadas 1 & 2", tipo: "Série", fase: "Fase 4", ordemCronologica: 25, periodo: "2023-2024", observacoes: "Eventos muito ligados ao multiverso" },
+      { id: "what-if-1-2", titulo: "What If...? - Temporadas 1 & 2", tipo: "Série animada", fase: "Fase 4", ordemCronologica: 26, periodo: "2023-2024", observacoes: "Animação com realidades alternativas" },
+      { id: "shang-chi", titulo: "Shang-Chi e a Lenda dos Dez Anéis", tipo: "Filme", fase: "Fase 4", ordemCronologica: 27, periodo: "2023", observacoes: "" },
+      { id: "eternos", titulo: "Eternos", tipo: "Filme", fase: "Fase 4", ordemCronologica: 28, periodo: "2023", observacoes: "" },
+      { id: "sem-volta-para-casa", titulo: "Homem-Aranha: Sem Volta para Casa", tipo: "Filme", fase: "Fase 4", ordemCronologica: 29, periodo: "2023", observacoes: "" },
+      { id: "doutor-estranho-2", titulo: "Doutor Estranho no Multiverso da Loucura", tipo: "Filme", fase: "Fase 4", ordemCronologica: 30, periodo: "2024", observacoes: "" },
+      { id: "thor-amor-e-trovao", titulo: "Thor: Amor e Trovão", tipo: "Filme", fase: "Fase 4", ordemCronologica: 31, periodo: "2024", observacoes: "" },
+      { id: "wakanda-para-sempre", titulo: "Pantera Negra: Wakanda Para Sempre", tipo: "Filme", fase: "Fase 4", ordemCronologica: 32, periodo: "2024", observacoes: "" },
+      { id: "gaviao-arqueiro", titulo: "Gavião Arqueiro", tipo: "Série", fase: "Fase 4", ordemCronologica: 33, periodo: "Fim de 2024", observacoes: "" },
+      { id: "cavaleiro-da-lua", titulo: "Cavaleiro da Lua", tipo: "Série", fase: "Fase 4", ordemCronologica: 34, periodo: "2025", observacoes: "" },
+      { id: "echo", titulo: "Echo", tipo: "Série", fase: "Fase 5", ordemCronologica: 35, periodo: "2025", observacoes: "" },
+      { id: "she-hulk", titulo: "Mulher-Hulk: Defensora de Heróis", tipo: "Série", fase: "Fase 4", ordemCronologica: 36, periodo: "2025", observacoes: "" },
+      { id: "ms-marvel", titulo: "Ms. Marvel", tipo: "Série", fase: "Fase 4", ordemCronologica: 37, periodo: "2025", observacoes: "" },
+      { id: "the-marvels", titulo: "The Marvels", tipo: "Filme", fase: "Fase 5", ordemCronologica: 38, periodo: "2025", observacoes: "" },
+      { id: "ironheart", titulo: "Ironheart", tipo: "Série", fase: "Fase 5", ordemCronologica: 39, periodo: "2025", observacoes: "" },
+      { id: "werewolf-by-night", titulo: "Werewolf By Night", tipo: "Especial", fase: "Fase 4", ordemCronologica: 40, periodo: "2025", observacoes: "" },
+      { id: "gotg-especial-natal", titulo: "Guardiões da Galáxia: Especial de Natal", tipo: "Especial", fase: "Fase 4", ordemCronologica: 41, periodo: "2025", observacoes: "" },
+      { id: "quantumania", titulo: "Homem-Formiga e a Vespa: Quantumania", tipo: "Filme", fase: "Fase 5", ordemCronologica: 42, periodo: "2025", observacoes: "" },
+      { id: "gotg-3", titulo: "Guardiões da Galáxia Vol. 3", tipo: "Filme", fase: "Fase 5", ordemCronologica: 43, periodo: "2026 (logo após Quantumania)", observacoes: "" },
+      { id: "deadpool-wolverine", titulo: "Deadpool & Wolverine", tipo: "Filme", fase: "Fase 5", ordemCronologica: 44, periodo: "2026", observacoes: "História com elementos de multiverso" },
+      { id: "capitao-brave-new-world", titulo: "Capitão América: Brave New World", tipo: "Filme", fase: "Fase 5", ordemCronologica: 45, periodo: "2026", observacoes: "" },
+      { id: "thunderbolts", titulo: "Thunderbolts", tipo: "Filme", fase: "Fase 5", ordemCronologica: 46, periodo: "2025-2026 (entre eventos da Fase 5)", observacoes: "" },
+    ];
+
+    // Componente de Progresso
+    function ProgressSection({ total, watched }) {
+      const percentage = total > 0 ? Math.round((watched / total) * 100) : 0;
+
+      return React.createElement('div', { className: 'progress-section' },
+        React.createElement('div', { className: 'progress-info' },
+          React.createElement('span', { className: 'progress-text' },
+            `${watched} de ${total} títulos assistidos`
+          ),
+          React.createElement('span', { className: 'progress-percentage' },
+            `${percentage}%`
+          )
+        ),
+        React.createElement('div', { className: 'progress-bar-container' },
+          React.createElement('div', {
+            className: 'progress-bar-fill',
+            style: { width: `${percentage}%` }
+          })
+        )
+      );
+    }
+
+    // Componente de Card de Item
+    function ItemCard({ item, isWatched, onToggleWatched, showPosition }) {
+      return React.createElement('div', {
+        className: `item-card ${isWatched ? 'watched' : ''}`
+      },
+        showPosition && React.createElement('span', { className: 'item-position' },
+          `#${item.ordemCronologica}`
+        ),
+        React.createElement('h3', { className: 'item-title' }, item.titulo),
+        React.createElement('div', { className: 'item-meta' },
+          React.createElement('span', { className: 'item-badge badge-tipo' }, item.tipo),
+          item.fase && React.createElement('span', { className: 'item-badge badge-fase' }, item.fase)
+        ),
+        React.createElement('div', { className: 'item-periodo' },
+          `📅 ${item.periodo}`
+        ),
+        item.observacoes && React.createElement('div', { className: 'item-observacoes' },
+          item.observacoes
+        ),
+        React.createElement('label', {
+          className: 'checkbox-container',
+          onClick: (e) => e.stopPropagation()
+        },
+          React.createElement('input', {
+            type: 'checkbox',
+            checked: isWatched,
+            onChange: () => onToggleWatched(item.id)
+          }),
+          React.createElement('span', { className: 'checkbox-label' }, 'Assistido')
+        )
+      );
+    }
+
+    // Componente Principal
+    function App() {
+      const [watchedItems, setWatchedItems] = useState(() => {
+        const saved = localStorage.getItem('mcuWatchedList');
+        return saved ? JSON.parse(saved) : [];
+      });
+
+      const [viewMode, setViewMode] = useState('cronologico');
+      const [searchText, setSearchText] = useState('');
+      const [filterTipo, setFilterTipo] = useState('');
+      const [filterFase, setFilterFase] = useState('');
+
+      useEffect(() => {
+        localStorage.setItem('mcuWatchedList', JSON.stringify(watchedItems));
+      }, [watchedItems]);
+
+      const toggleWatched = (id) => {
+        setWatchedItems(prev =>
+          prev.includes(id)
+            ? prev.filter(itemId => itemId !== id)
+            : [...prev, id]
+        );
+      };
+
+      const filteredItems = useMemo(() => {
+        return mcuItems.filter(item => {
+          const matchesSearch = searchText === '' ||
+            item.titulo.toLowerCase().includes(searchText.toLowerCase()) ||
+            item.tipo.toLowerCase().includes(searchText.toLowerCase()) ||
+            item.fase.toLowerCase().includes(searchText.toLowerCase());
+
+          const matchesTipo = filterTipo === '' || item.tipo === filterTipo;
+          const matchesFase = filterFase === '' || item.fase === filterFase;
+
+          return matchesSearch && matchesTipo && matchesFase;
+        });
+      }, [searchText, filterTipo, filterFase]);
+
+      const sortedItems = useMemo(() => {
+        return [...filteredItems].sort((a, b) => a.ordemCronologica - b.ordemCronologica);
+      }, [filteredItems]);
+
+      const itemsByPhase = useMemo(() => {
+        const phases = {};
+        sortedItems.forEach(item => {
+          const phase = item.fase || 'Sem Fase';
+          if (!phases[phase]) {
+            phases[phase] = [];
+          }
+          phases[phase].push(item);
+        });
+        return phases;
+      }, [sortedItems]);
+
+      const uniqueTipos = useMemo(() => {
+        return [...new Set(mcuItems.map(item => item.tipo))].sort();
+      }, []);
+
+      const uniqueFases = useMemo(() => {
+        return [...new Set(mcuItems.filter(item => item.fase).map(item => item.fase))].sort();
+      }, []);
+
+      return React.createElement('div', { className: 'container' },
+        React.createElement('div', { className: 'header' },
+          React.createElement('h1', null, 'Dashboard MCU – Filmes e Séries'),
+          React.createElement('p', null, 'Acompanhe sua jornada pelo Universo Cinematográfico Marvel')
+        ),
+
+        React.createElement(ProgressSection, {
+          total: mcuItems.length,
+          watched: watchedItems.length
+        }),
+
+        React.createElement('div', { className: 'filters-section' },
+          React.createElement('div', { className: 'filter-row' },
+            React.createElement('div', { className: 'filter-group' },
+              React.createElement('label', { className: 'filter-label' }, '🔍 Buscar'),
+              React.createElement('input', {
+                type: 'text',
+                placeholder: 'Busque por título, tipo ou fase...',
+                value: searchText,
+                onChange: (e) => setSearchText(e.target.value)
+              })
+            ),
+            React.createElement('div', { className: 'filter-group' },
+              React.createElement('label', { className: 'filter-label' }, '🎬 Tipo'),
+              React.createElement('select', {
+                value: filterTipo,
+                onChange: (e) => setFilterTipo(e.target.value)
+              },
+                React.createElement('option', { value: '' }, 'Todos os tipos'),
+                uniqueTipos.map(tipo =>
+                  React.createElement('option', { key: tipo, value: tipo }, tipo)
+                )
+              )
+            ),
+            React.createElement('div', { className: 'filter-group' },
+              React.createElement('label', { className: 'filter-label' }, '📊 Fase'),
+              React.createElement('select', {
+                value: filterFase,
+                onChange: (e) => setFilterFase(e.target.value)
+              },
+                React.createElement('option', { value: '' }, 'Todas as fases'),
+                uniqueFases.map(fase =>
+                  React.createElement('option', { key: fase, value: fase }, fase)
+                )
+              )
+            )
+          ),
+
+          React.createElement('div', { className: 'view-mode-buttons' },
+            React.createElement('button', {
+              className: `view-mode-btn ${viewMode === 'cronologico' ? 'active' : ''}`,
+              onClick: () => setViewMode('cronologico')
+            }, '📅 Ordem Cronológica'),
+            React.createElement('button', {
+              className: `view-mode-btn ${viewMode === 'fase' ? 'active' : ''}`,
+              onClick: () => setViewMode('fase')
+            }, '📊 Por Fase')
+          )
+        ),
+
+        sortedItems.length === 0
+          ? React.createElement('div', { className: 'no-results' },
+            'Nenhum item encontrado com os filtros selecionados.'
+          )
+          : viewMode === 'cronologico'
+            ? React.createElement('div', { className: 'items-grid' },
+              sortedItems.map(item =>
+                React.createElement(ItemCard, {
+                  key: item.id,
+                  item: item,
+                  isWatched: watchedItems.includes(item.id),
+                  onToggleWatched: toggleWatched,
+                  showPosition: true
+                })
+              )
+            )
+            : Object.entries(itemsByPhase).map(([phase, items]) =>
+              React.createElement('div', { key: phase, className: 'phase-group' },
+                React.createElement('h2', { className: 'phase-title' }, phase),
+                React.createElement('div', { className: 'items-grid' },
+                  items.map(item =>
+                    React.createElement(ItemCard, {
+                      key: item.id,
+                      item: item,
+                      isWatched: watchedItems.includes(item.id),
+                      onToggleWatched: toggleWatched,
+                      showPosition: true
+                    })
+                  )
+                )
+              )
+            )
+      );
+    }
+
+    // Renderização
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(App));
+  </script>
+</body>
+</html>
